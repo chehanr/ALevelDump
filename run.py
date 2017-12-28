@@ -12,13 +12,15 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
+TIME = strftime("%Y-%m-%d_%H-%M-%S", gmtime())
+
 DRIVER = webdriver.Firefox()
 DRIVER.get('http://www.doenets.lk/result/alresult.jsf')
 
 
 def dump_to_txt(dict_data):
     """Write the dictionary data as json to txt file."""
-    file_name = 'dump_%s.txt' % (strftime("%Y-%m-%d_%H-%M-%S", gmtime()))
+    file_name = 'dump_%s.txt' % (TIME)
     try:
         with open(file_name, 'a+') as f:
             json.dump(dict_data, f)
