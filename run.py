@@ -22,12 +22,12 @@ PATH = '%s\\dump\\%s\\' % (CWD, TIME)
 def merge_files():
     """Merge all txt files into one."""
 
-    with open(PATH + 'dump.txt', 'w') as outfile:
-        for file in os.listdir(PATH):
-            if file.endswith(".txt"):
-                with open(os.path.join(PATH, file)) as infile:
-                    for line in infile:
-                        outfile.write(line)
+    with open(PATH + 'dump.txt', 'w') as out_file:
+        for txt_file in os.listdir(PATH):
+            if txt_file.endswith('.txt'):
+                with open(os.path.join(PATH, txt_file)) as in_file:
+                    for line in in_file:
+                        out_file.write(line)
 
 
 def check_path(path):
@@ -134,7 +134,7 @@ def chunk_it(range_limit, number):
 
 if __name__ == '__main__':
     UPPER_LIMIT = 100000
-    PROCESS_NUMBER = UPPER_LIMIT // 5
+    PROCESS_NUMBER = UPPER_LIMIT // 10
     CHUNKS = list(chunk_it(range(UPPER_LIMIT), PROCESS_NUMBER))
 
     try:
