@@ -14,6 +14,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
+import time
+
 CWD = os.getcwd()
 TIME = strftime("%Y-%m-%d_%H-%M-%S", gmtime())
 PATH = '%s\\dump\\%s\\' % (CWD, TIME)
@@ -137,13 +139,20 @@ if __name__ == '__main__':
     PROCESS_NUMBER = UPPER_LIMIT // 10
     CHUNKS = list(chunk_it(range(UPPER_LIMIT), PROCESS_NUMBER))
 
+    START_TIME = time.time()
+
     try:
         print('dumping %s IDs with %s processes' %
               (UPPER_LIMIT - 1, len(CHUNKS)))
-
         POOL = mp.Pool(PROCESS_NUMBER)
         POOL.map(main, CHUNKS)
         POOL.close()
         POOL.join()
     except KeyboardInterrupt:
         merge_files()
+    else:
+        merge_files()
+
+    END_TIME = time.time()
+
+    print('\ntook %s seconds' % (END_TIME - START_TIME))
