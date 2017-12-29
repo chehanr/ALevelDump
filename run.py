@@ -6,6 +6,7 @@
 import json
 import multiprocessing.dummy as mp
 import os
+import time
 from time import gmtime, strftime
 
 from selenium import webdriver
@@ -13,8 +14,6 @@ from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
-
-import time
 
 CWD = os.getcwd()
 TIME = strftime("%Y-%m-%d_%H-%M-%S", gmtime())
