@@ -9,4 +9,4 @@ A simple script used to scrape A/L results in given range of IDs.
 ### Prerequisites: 
 
  - Run `pip install -r "requirements.txt"`  
- - Have Selenium WebDriver in ENV or Path.
+ - Have Selenium WebDriver (PhantomJS) in ENV or Path.
