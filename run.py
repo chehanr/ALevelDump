@@ -19,6 +19,17 @@ TIME = strftime("%Y-%m-%d_%H-%M-%S", gmtime())
 PATH = '%s\\dump\\%s\\' % (CWD, TIME)
 
 
+def merge_files():
+    """Merge all txt files into one."""
+
+    with open(PATH + 'dump.txt', 'w') as outfile:
+        for file in os.listdir(PATH):
+            if file.endswith(".txt"):
+                with open(os.path.join(PATH, file)) as infile:
+                    for line in infile:
+                        outfile.write(line)
+
+
 def check_path(path):
     """Check path, if not create it."""
 
@@ -126,9 +137,13 @@ if __name__ == '__main__':
     PROCESS_NUMBER = UPPER_LIMIT // 5
     CHUNKS = list(chunk_it(range(UPPER_LIMIT), PROCESS_NUMBER))
 
-    print('dumping %s IDs with %s processes' % (UPPER_LIMIT - 1, len(CHUNKS)))
+    try:
+        print('dumping %s IDs with %s processes' %
+              (UPPER_LIMIT - 1, len(CHUNKS)))
 
-    POOL = mp.Pool(PROCESS_NUMBER)
-    POOL.map(main, CHUNKS)
-    POOL.close()
-    POOL.join()
+        POOL = mp.Pool(PROCESS_NUMBER)
+        POOL.map(main, CHUNKS)
+        POOL.close()
+        POOL.join()
+    except KeyboardInterrupt:
+        merge_files()
