@@ -17,7 +17,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 CWD = os.getcwd()
 TIME = strftime("%Y-%m-%d_%H-%M-%S", gmtime())
-PATH = '%s\\dump\\%s\\' % (CWD, TIME)
+PATH = '%s/dump/%s/' % (CWD, TIME)
 
 
 def merge_files():
@@ -58,22 +58,23 @@ def dump_to_txt(dict_data, number_chunk):
 def main(number_chunk):
     """Scrape data into nested dictionary."""
 
-    DRIVER = webdriver.PhantomJS()
-    DRIVER.get('http://www.doenets.lk/result/alresult.jsf')
+    driver = webdriver.PhantomJS()
+    driver.get('http://www.doenets.lk/result/alresult.jsf')
 
     for i in number_chunk:
+        # Change pattern here.
         student_id = '72%s' % (str(i).zfill(5))
 
-        submit_box = DRIVER.find_element_by_id('frm:username')
+        submit_box = driver.find_element_by_id('frm:username')
         submit_box.clear()
         submit_box.send_keys(student_id)
 
-        submit_button = DRIVER.find_element_by_id('frm:btnSubmit')
+        submit_button = driver.find_element_by_id('frm:btnSubmit')
         submit_button.click()
 
         delay = 0  # seconds
         try:
-            result_form = WebDriverWait(DRIVER, delay).until(
+            result_form = WebDriverWait(driver, delay).until(
                 EC.presence_of_element_located((By.ID, 'j_idt16')))
 
             print('scraping id %s' % (student_id))
@@ -94,7 +95,7 @@ def main(number_chunk):
 
             student_info.append(info)
 
-            # row_count = len(DRIVER.find_elements_by_xpath("//tbody[@id='j_idt16:j_idt26_data']/tr"))
+            # row_count = len(driver.find_elements_by_xpath("//tbody[@id='j_idt16:j_idt26_data']/tr"))
             # for i in [x for x in range(row_count) if x != 0]:
             #     xpath_1 = "//tbody[@id='j_idt16:j_idt26_data']/tr[%s]/td[1]" % (i)
             #     xpath_2 = "//tbody[@id='j_idt16:j_idt26_data']/tr[%s]/td[2]" % (i)
@@ -134,23 +135,25 @@ def chunk_it(range_limit, number):
 
 
 if __name__ == '__main__':
-    UPPER_LIMIT = 100000
-    PROCESS_NUMBER = UPPER_LIMIT // 10
-    CHUNKS = list(chunk_it(range(UPPER_LIMIT), PROCESS_NUMBER))
+    UPPER_LIMIT = 100
+    PROCESS_NUMBER = 20
+    CHUNKS = list(chunk_it(range(UPPER_LIMIT), UPPER_LIMIT // PROCESS_NUMBER))
 
     START_TIME = time.time()
 
     try:
         print('dumping %s IDs with %s processes' %
               (UPPER_LIMIT - 1, len(CHUNKS)))
-        POOL = mp.Pool(PROCESS_NUMBER)
-        POOL.map(main, CHUNKS)
+        POOL = mp.Pool(len(CHUNKS))
+        POOL.imap_unordered(main, CHUNKS)
+    except KeyboardInterrupt:
+        # TODO FIX
+        POOL.terminate()
+    else:
         POOL.close()
         POOL.join()
-    except KeyboardInterrupt:
-        merge_files()
-    else:
-        merge_files()
+
+    merge_files()
 
     END_TIME = time.time()
 
