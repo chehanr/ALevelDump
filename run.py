@@ -161,8 +161,8 @@ def main(process_number, upper_limit):
 
 def arg_parse():
     """Argument parser."""
-    parser = ArgumentParser(prog='moodlescrapr',
-                            description='ACBT moodle scraper (by chehanr)')
+    parser = ArgumentParser(prog='ALevelDump',
+                            description='A simple script used to scrape A/L results in given range of IDs (by chehanr)')
     parser.add_argument('-p', '--processes', action='store', dest='processes',
                         help='number of processes',
                         type=int, required=False, default=5)
