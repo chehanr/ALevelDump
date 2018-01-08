@@ -6,8 +6,8 @@
 import json
 import multiprocessing.dummy as mp
 import os
-import time
-from time import gmtime, strftime
+from argparse import ArgumentParser
+from time import time, gmtime, strftime
 
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException
@@ -55,7 +55,7 @@ def dump_to_txt(dict_data, number_chunk):
         print(err)
 
 
-def main(number_chunk):
+def process(number_chunk):
     """Scrape data into nested dictionary."""
 
     driver = webdriver.PhantomJS()
@@ -63,8 +63,8 @@ def main(number_chunk):
 
     for i in number_chunk:
         # Change pattern here.
-        student_id = '72%s' % (str(i).zfill(5))
-
+        student_id = '%s%s' % (str(ARGS.pattern), str(
+            i).zfill(7 - len(str(ARGS.pattern))))
         submit_box = driver.find_element_by_id('frm:username')
         submit_box.clear()
         submit_box.send_keys(student_id)
@@ -75,30 +75,30 @@ def main(number_chunk):
         delay = 0  # seconds
         try:
             result_form = WebDriverWait(driver, delay).until(
-                EC.presence_of_element_located((By.ID, 'j_idt16')))
+                EC.presence_of_element_located((By.ID, 'j_idt17')))
 
-            print('scraping id %s' % (student_id))
+            print('scraping id %s' % student_id, end='\r')
 
             student_info = []
             student_results = []
 
             info = {
-                'examination': result_form.find_element_by_xpath("//tbody[@id='j_idt16:j_idt19_data']/tr[1]/td[2]").text.strip(),
-                'year ': result_form.find_element_by_xpath("//tbody[@id='j_idt16:j_idt19_data']/tr[2]/td[2]").text.strip(),
-                'name': result_form.find_element_by_xpath("//tbody[@id='j_idt16:j_idt19_data']/tr[3]/td[2]").text.strip(),
-                'index_number': result_form.find_element_by_xpath("//tbody[@id='j_idt16:j_idt19_data']/tr[4]/td[2]").text.strip(),
-                'district_rank': result_form.find_element_by_xpath("//tbody[@id='j_idt16:j_idt19_data']/tr[5]/td[2]").text.strip(),
-                'island_rank': result_form.find_element_by_xpath("//tbody[@id='j_idt16:j_idt19_data']/tr[6]/td[2]").text.strip(),
-                'z_score': result_form.find_element_by_xpath("//tbody[@id='j_idt16:j_idt19_data']/tr[7]/td[2]").text.strip(),
-                'subject_stream': result_form.find_element_by_xpath("//tbody[@id='j_idt16:j_idt19_data']/tr[8]/td[2]").text.strip()
+                'examination': result_form.find_element_by_xpath("//tbody[@id='j_idt17:j_idt20_data']/tr[1]/td[2]").text.strip(),
+                'year ': result_form.find_element_by_xpath("//tbody[@id='j_idt17:j_idt20_data']/tr[2]/td[2]").text.strip(),
+                'name': result_form.find_element_by_xpath("//tbody[@id='j_idt17:j_idt20_data']/tr[3]/td[2]").text.strip(),
+                'index_number': result_form.find_element_by_xpath("//tbody[@id='j_idt17:j_idt20_data']/tr[4]/td[2]").text.strip(),
+                'district_rank': result_form.find_element_by_xpath("//tbody[@id='j_idt17:j_idt20_data']/tr[5]/td[2]").text.strip(),
+                'island_rank': result_form.find_element_by_xpath("//tbody[@id='j_idt17:j_idt20_data']/tr[6]/td[2]").text.strip(),
+                'z_score': result_form.find_element_by_xpath("//tbody[@id='j_idt17:j_idt20_data']/tr[7]/td[2]").text.strip(),
+                'subject_stream': result_form.find_element_by_xpath("//tbody[@id='j_idt17:j_idt20_data']/tr[8]/td[2]").text.strip()
             }
 
             student_info.append(info)
 
-            # row_count = len(driver.find_elements_by_xpath("//tbody[@id='j_idt16:j_idt26_data']/tr"))
+            # row_count = len(driver.find_elements_by_xpath("//tbody[@id='j_idt17:j_idt27_data']/tr"))
             # for i in [x for x in range(row_count) if x != 0]:
-            #     xpath_1 = "//tbody[@id='j_idt16:j_idt26_data']/tr[%s]/td[1]" % (i)
-            #     xpath_2 = "//tbody[@id='j_idt16:j_idt26_data']/tr[%s]/td[2]" % (i)
+            #     xpath_1 = "//tbody[@id='j_idt17:j_idt27_data']/tr[%s]/td[1]" % (i)
+            #     xpath_2 = "//tbody[@id='j_idt17:j_idt27_data']/tr[%s]/td[2]" % (i)
             #
             #     results = {
             #         result_form.find_element_by_xpath(xpath_1).text.strip(): result_form.find_element_by_xpath(xpath_2).text.strip()
@@ -107,11 +107,11 @@ def main(number_chunk):
             #     student_results.append(results)
 
             results = {
-                result_form.find_element_by_xpath("//tbody[@id='j_idt16:j_idt26_data']/tr[1]/td[1]").text.strip(): result_form.find_element_by_xpath("//tbody[@id='j_idt16:j_idt26_data']/tr[1]/td[2]").text.strip(),
-                result_form.find_element_by_xpath("//tbody[@id='j_idt16:j_idt26_data']/tr[2]/td[1]").text.strip(): result_form.find_element_by_xpath("//tbody[@id='j_idt16:j_idt26_data']/tr[2]/td[2]").text.strip(),
-                result_form.find_element_by_xpath("//tbody[@id='j_idt16:j_idt26_data']/tr[3]/td[1]").text.strip(): result_form.find_element_by_xpath("//tbody[@id='j_idt16:j_idt26_data']/tr[3]/td[2]").text.strip(),
-                result_form.find_element_by_xpath("//tbody[@id='j_idt16:j_idt26_data']/tr[4]/td[1]").text.strip(): result_form.find_element_by_xpath("//tbody[@id='j_idt16:j_idt26_data']/tr[4]/td[2]").text.strip(),
-                result_form.find_element_by_xpath("//tbody[@id='j_idt16:j_idt26_data']/tr[5]/td[1]").text.strip(): result_form.find_element_by_xpath("//tbody[@id='j_idt16:j_idt26_data']/tr[5]/td[2]").text.strip()
+                result_form.find_element_by_xpath("//tbody[@id='j_idt17:j_idt27_data']/tr[1]/td[1]").text.strip(): result_form.find_element_by_xpath("//tbody[@id='j_idt17:j_idt27_data']/tr[1]/td[2]").text.strip(),
+                result_form.find_element_by_xpath("//tbody[@id='j_idt17:j_idt27_data']/tr[2]/td[1]").text.strip(): result_form.find_element_by_xpath("//tbody[@id='j_idt17:j_idt27_data']/tr[2]/td[2]").text.strip(),
+                result_form.find_element_by_xpath("//tbody[@id='j_idt17:j_idt27_data']/tr[3]/td[1]").text.strip(): result_form.find_element_by_xpath("//tbody[@id='j_idt17:j_idt27_data']/tr[3]/td[2]").text.strip(),
+                result_form.find_element_by_xpath("//tbody[@id='j_idt17:j_idt27_data']/tr[4]/td[1]").text.strip(): result_form.find_element_by_xpath("//tbody[@id='j_idt17:j_idt27_data']/tr[4]/td[2]").text.strip(),
+                result_form.find_element_by_xpath("//tbody[@id='j_idt17:j_idt27_data']/tr[5]/td[1]").text.strip(): result_form.find_element_by_xpath("//tbody[@id='j_idt17:j_idt27_data']/tr[5]/td[2]").text.strip()
             }
 
             student_results.append(results)
@@ -134,27 +134,51 @@ def chunk_it(range_limit, number):
         yield range_limit[i:i + number]
 
 
-if __name__ == '__main__':
-    UPPER_LIMIT = 100
-    PROCESS_NUMBER = 20
-    CHUNKS = list(chunk_it(range(UPPER_LIMIT), UPPER_LIMIT // PROCESS_NUMBER))
+def main(process_number, upper_limit):
+    """Main work."""
+    chunks = list(chunk_it(range(upper_limit), upper_limit // process_number))
 
-    START_TIME = time.time()
+    start_time = time()
 
     try:
         print('dumping %s IDs with %s processes' %
-              (UPPER_LIMIT - 1, len(CHUNKS)))
-        POOL = mp.Pool(len(CHUNKS))
-        POOL.imap_unordered(main, CHUNKS)
+              (upper_limit - 1, len(chunks)))
+        pool = mp.Pool(len(chunks))
+        pool.imap_unordered(process, chunks)
     except KeyboardInterrupt:
         # TODO FIX
-        POOL.terminate()
+        pool.terminate()
     else:
-        POOL.close()
-        POOL.join()
+        pool.close()
+        pool.join()
 
     merge_files()
 
-    END_TIME = time.time()
+    end_time = time()
 
-    print('\ntook %s seconds' % (END_TIME - START_TIME))
+    print('\ntook %s seconds' % (end_time - start_time))
+
+
+def arg_parse():
+    """Argument parser."""
+    parser = ArgumentParser(prog='moodlescrapr',
+                            description='ACBT moodle scraper (by chehanr)')
+    parser.add_argument('-p', '--processes', action='store', dest='processes',
+                        help='number of processes',
+                        type=int, required=False, default=5)
+    parser.add_argument('-l', '--limit', action='store', dest='limit',
+                        help='upper limit of ids',
+                        type=int, required=False, default=100)
+    parser.add_argument('-sp', '--pattern', action='store', dest='pattern',
+                        help='start pattern',
+                        type=str, required=False, default=72)
+    results = parser.parse_args()
+
+    return results
+
+
+ARGS = arg_parse()
+
+
+if __name__ == '__main__':
+    main(ARGS.processes, ARGS.limit)
